@@ -41,4 +41,9 @@ public class ShowServiceImpl implements ShowService {
 		return new ShowSummaryDTO(id, name, channel, summary, genres);
 	}
 
+	@Override
+	public Map<String, Object> getShowById(Long id) {
+		return tvMazeClient.getShowById(id);
+	}
+
 }
