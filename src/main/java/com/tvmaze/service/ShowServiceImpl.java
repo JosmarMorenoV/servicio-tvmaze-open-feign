@@ -52,13 +52,15 @@ public class ShowServiceImpl implements ShowService {
 
 	@Override
 	public Map<String, Object> getShowById(Long id) {
-		return showCacheRepository.findById(id)
+		Map<String, Object> show = showCacheRepository.findById(id)
 				.map(ShowCache::getShow)
 				.orElseGet(() -> {
-					Map<String, Object> show = tvMazeClient.getShowById(id);
-					showCacheRepository.save(new ShowCache(id, show));
-					return show;
+					Map<String, Object> fetched = tvMazeClient.getShowById(id);
+					showCacheRepository.save(new ShowCache(id, fetched));
+					return fetched;
 				});
+		show.put("comments", getCommentSummaries(id));
+		return show;
 	}
 
 	private List<CommentSummaryDTO> getCommentSummaries(Long showId) {
