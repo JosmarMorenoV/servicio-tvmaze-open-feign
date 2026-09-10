@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tvmaze.client.TvMazeClient;
+import com.tvmaze.modelo.CommentSummaryDTO;
 import com.tvmaze.modelo.ShowCache;
 import com.tvmaze.modelo.ShowSummaryDTO;
 import com.tvmaze.repository.ShowCacheRepository;
@@ -20,6 +21,9 @@ public class ShowServiceImpl implements ShowService {
 
 	@Autowired
 	private ShowCacheRepository showCacheRepository;
+
+	@Autowired
+	private CommentService commentService;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -43,7 +47,7 @@ public class ShowServiceImpl implements ShowService {
 		String summary = (String) show.get("summary");
 		List<String> genres = (List<String>) show.get("genres");
 
-		return new ShowSummaryDTO(id, name, channel, summary, genres);
+		return new ShowSummaryDTO(id, name, channel, summary, genres, getCommentSummaries(id));
 	}
 
 	@Override
@@ -55,6 +59,12 @@ public class ShowServiceImpl implements ShowService {
 					showCacheRepository.save(new ShowCache(id, show));
 					return show;
 				});
+	}
+
+	private List<CommentSummaryDTO> getCommentSummaries(Long showId) {
+		return commentService.getCommentsByShowId(showId).stream()
+				.map(comment -> new CommentSummaryDTO(comment.getComment(), comment.getRating()))
+				.collect(Collectors.toList());
 	}
 
 }

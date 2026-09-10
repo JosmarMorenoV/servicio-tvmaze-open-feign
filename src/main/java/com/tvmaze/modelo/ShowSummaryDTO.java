@@ -16,5 +16,6 @@ public class ShowSummaryDTO {
 	private String channel;
 	private String summary;
 	private List<String> genres;
+	private List<CommentSummaryDTO> comments;
 
 }
