@@ -8,13 +8,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tvmaze.client.TvMazeClient;
+import com.tvmaze.modelo.ShowCache;
 import com.tvmaze.modelo.ShowSummaryDTO;
+import com.tvmaze.repository.ShowCacheRepository;
 
 @Service
 public class ShowServiceImpl implements ShowService {
 
 	@Autowired
 	private TvMazeClient tvMazeClient;
+
+	@Autowired
+	private ShowCacheRepository showCacheRepository;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -43,7 +48,13 @@ public class ShowServiceImpl implements ShowService {
 
 	@Override
 	public Map<String, Object> getShowById(Long id) {
-		return tvMazeClient.getShowById(id);
+		return showCacheRepository.findById(id)
+				.map(ShowCache::getShow)
+				.orElseGet(() -> {
+					Map<String, Object> show = tvMazeClient.getShowById(id);
+					showCacheRepository.save(new ShowCache(id, show));
+					return show;
+				});
 	}
 
 }
